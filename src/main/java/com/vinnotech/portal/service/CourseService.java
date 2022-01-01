@@ -76,20 +76,15 @@ public class CourseService {
 	public Course getCourse(Long id) {
 		String methodName = "getCourse";
 		LOGGER.info(CLASSNAME + ": Entering into the " + methodName);
-		Course course = new Course();
 		try {
 			Optional<Course> optcourse = courseRepository.findById(id);
-			if (optcourse.isPresent()) {
-				course = optcourse.get();
-				LOGGER.info(CLASSNAME + ": Existing into the " + methodName);
-				return course;
-			}
+			LOGGER.info(CLASSNAME + ": Existing into the " + methodName);
+			return optcourse.get();
 		} catch (Exception e) {
+
 			LOGGER.error(CLASSNAME + "got error while getting course " + methodName + e.getMessage());
-			throw new HRPortalException(HttpStatus.NOT_FOUND.value(), e.getMessage(), e.getCause().getMessage());
+			throw new HRPortalException(HttpStatus.NOT_FOUND.value(), e.getMessage() + ":", "");
 		}
-		LOGGER.info(CLASSNAME + ": Existing into the " + methodName);
-		return course;
 	}
 
 	/**
@@ -128,7 +123,7 @@ public class CourseService {
 	}
 
 	/**
-	 * Getting all Courses with Pagination and sording Desending order
+	 * Getting all Courses with Pagination and sorting Descending order
 	 * 
 	 * @param offset
 	 * @param pageSize
@@ -150,7 +145,7 @@ public class CourseService {
 	}
 
 	/**
-	 * Getting all Courses with Pagination and sording Asending order
+	 * Getting all Courses with Pagination and sorting Ascending order
 	 * 
 	 * @param offset
 	 * @param pageSize
@@ -219,6 +214,31 @@ public class CourseService {
 		} catch (Exception e) {
 			LOGGER.error(CLASSNAME + "got error while getting All course Asending order with Pulish" + methodName
 					+ e.getMessage());
+			throw new HRPortalException(HttpStatus.NOT_FOUND.value(), e.getMessage(), e.getCause().getMessage());
+		}
+	}
+
+	/**
+	 * get the all courses based on search param
+	 * 
+	 * @param publish
+	 * @param searchParam
+	 * @param offset
+	 * @param pageSize
+	 * @return
+	 */
+	public Page<Course> searchAllCourse(boolean publish, String searchParam, int offset, int pageSize) {
+		String methodName = "searchAllCourse";
+		LOGGER.info(CLASSNAME + ": Entering into the " + methodName);
+		try {
+			SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
+			System.out.println(new Date());
+			String currentDate = sm.format(new Date());
+			Page<Course> allcoursesWithPubAse = courseRepository.searchByCourse(publish, currentDate, searchParam,
+					PageRequest.of(offset, pageSize));
+			return allcoursesWithPubAse;
+		} catch (Exception e) {
+			LOGGER.error(CLASSNAME + "got error while getting All course in search" + methodName + e.getMessage());
 			throw new HRPortalException(HttpStatus.NOT_FOUND.value(), e.getMessage(), e.getCause().getMessage());
 		}
 	}

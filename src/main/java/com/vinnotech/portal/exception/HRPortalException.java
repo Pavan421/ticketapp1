@@ -10,6 +10,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 public class HRPortalException extends RuntimeException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int statusCode;
 	private String message;
 	private String errorCause;

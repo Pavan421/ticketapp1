@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vinnotech.portal.model.Employee;
+import com.vinnotech.portal.model.HRPortalConstants;
 import com.vinnotech.portal.service.EmployeeService;
 
 @CrossOrigin
@@ -34,11 +36,30 @@ public class EmployeeController {
 	private EmployeeService empService;
 
 	/**
+	 * Creating new Employee
+	 * 
+	 * @param emp
+	 * @return
+	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_ONLY)
+	@PostMapping("/create")
+	public ResponseEntity<Employee> saveEmployee(@RequestBody Employee emp) {
+		String methodName = "saveEmployee";
+		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
+		Employee createdemp = empService.saveEmployee(emp);
+		HttpHeaders header = new HttpHeaders();
+		header.add("desc", "Creating New Employee");
+		LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
+		return ResponseEntity.status(HttpStatus.OK).headers(header).body(createdemp);
+	}
+
+	/**
 	 * Getting the Employee based on EmpId
 	 * 
 	 * @param id
 	 * @return
 	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_RECRUITER_EMPLOYEE_ONLY)
 	@GetMapping("/{id}")
 	public ResponseEntity<Employee> getEmployee(@PathVariable("id") Long id) {
 		String methodName = "getEmployee";
@@ -55,7 +76,8 @@ public class EmployeeController {
 	 * 
 	 * @return
 	 */
-	@GetMapping
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_ONLY)
+	@GetMapping()
 	public ResponseEntity<List<Employee>> getAllEmployees() {
 		String methodName = "getAllEmployees";
 		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
@@ -67,28 +89,12 @@ public class EmployeeController {
 	}
 
 	/**
-	 * Creating new Employee
-	 * 
-	 * @param emp
-	 * @return
-	 */
-	@PostMapping
-	public ResponseEntity<Employee> saveEmployee(@RequestBody Employee emp) {
-		String methodName = "saveEmployee";
-		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
-		Employee createdemp = empService.saveEmployee(emp);
-		HttpHeaders header = new HttpHeaders();
-		header.add("desc", "Creating New Employee");
-		LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
-		return ResponseEntity.status(HttpStatus.OK).headers(header).body(createdemp);
-	}
-
-	/**
 	 * updating Employee
 	 * 
 	 * @param emp
 	 */
-	@PutMapping
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_ONLY)
+	@PutMapping("/update")
 	public ResponseEntity<String> updateEmployee(@RequestBody Employee emp) {
 		String methodName = "updateEmployee";
 		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
@@ -100,30 +106,14 @@ public class EmployeeController {
 	}
 
 	/**
-	 * Deleting Employee
-	 * 
-	 * @param id
-	 * @return
-	 */
-	@DeleteMapping("/id")
-	public ResponseEntity<String> deleteEmployee(@PathVariable("id") Long id) {
-		String methodName = "deleteEmployee";
-		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
-		String empDeleted = empService.deleteEmployee(id);
-		HttpHeaders header = new HttpHeaders();
-		header.add("desc", "deleting New Employee");
-		LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
-		return ResponseEntity.status(HttpStatus.OK).headers(header).body(empDeleted);
-	}
-
-	/**
-	 * getting all employees with desending order
+	 * Getting all employees with descending order
 	 * 
 	 * @param offset
 	 * @param pageSize
 	 * @param field
 	 * @return
 	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_ONLY)
 	@GetMapping("/sortandpagedesc/{offset}/{pageSize}/{field}")
 	private ResponseEntity<Page<Employee>> getAllEmployeeswithSortAndPagiDesc(@PathVariable int offset,
 			@PathVariable int pageSize, @PathVariable String field) {
@@ -137,13 +127,14 @@ public class EmployeeController {
 	}
 
 	/**
-	 * getting all employees with Asending order
+	 * Getting all employees with Ascending order
 	 * 
 	 * @param offset
 	 * @param pageSize
 	 * @param field
 	 * @return
 	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_ONLY)
 	@GetMapping("/sortandpageasc/{offset}/{pageSize}/{field}")
 	private ResponseEntity<Page<Employee>> getAllEmployeeswithSortAndPagiASC(@PathVariable int offset,
 			@PathVariable int pageSize, @PathVariable String field) {
@@ -157,7 +148,7 @@ public class EmployeeController {
 	}
 
 	/**
-	 * getting All old Employees detail desending order
+	 * Getting All old Employees detail descending order
 	 * 
 	 * @param isEmpDeleted
 	 * @param offset
@@ -165,6 +156,7 @@ public class EmployeeController {
 	 * @param field
 	 * @return
 	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_ONLY)
 	@GetMapping("/spEmpDeldesc/{isEmpDeleted}/{offset}/{pageSize}/{field}")
 	private ResponseEntity<Page<Employee>> getAllDelEmpswithSortAndPagiDesc(@PathVariable boolean isEmpDeleted,
 			@PathVariable int offset, @PathVariable int pageSize, @PathVariable String field) {
@@ -179,7 +171,7 @@ public class EmployeeController {
 	}
 
 	/**
-	 * getting All old Employees detail Asending order
+	 * Getting All old Employees detail Ascending order
 	 * 
 	 * @param isEmpDeleted
 	 * @param offset
@@ -187,6 +179,7 @@ public class EmployeeController {
 	 * @param field
 	 * @return
 	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_ONLY)
 	@GetMapping("/spEmpDelasc/{isEmpDeleted}/{offset}/{pageSize}/{field}")
 	private ResponseEntity<Page<Employee>> getAllDelEmpswithSortAndPagiAsc(@PathVariable boolean isEmpDeleted,
 			@PathVariable int offset, @PathVariable int pageSize, @PathVariable String field) {
@@ -198,5 +191,43 @@ public class EmployeeController {
 		header.add("desc", "getting all   Employees based on deleted desending  order");
 		LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
 		return ResponseEntity.status(HttpStatus.OK).headers(header).body(delEmpsAsc);
+	}
+
+	/**
+	 * Deleting Employee
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_ONLY)
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<String> deleteEmployee(@PathVariable("id") Long id) {
+		String methodName = "deleteEmployee";
+		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
+		String empDeleted = empService.deleteEmployee(id);
+		HttpHeaders header = new HttpHeaders();
+		header.add("desc", "deleting New Employee");
+		LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
+		return ResponseEntity.status(HttpStatus.OK).headers(header).body(empDeleted);
+	}
+
+	/**
+	 * Getting Employee by Search 
+	 * @param serachParam
+	 * @param offset
+	 * @param pageSize
+	 * @return
+	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_ONLY)
+	@GetMapping("/searchEmpsByParam/{serachParam}/{offset}/{pageSize}")
+	public ResponseEntity<Page<Employee>> getEmpsBySearchTerm(@PathVariable("serachParam") String serachParam,
+			@PathVariable("offset") int offset, @PathVariable("pageSize") int pageSize) {
+		String methodName = "getEmpsBySearchTerm";
+		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
+		Page<Employee> searchEmpsList = empService.searchEmpsByParam(serachParam, offset, pageSize);
+		HttpHeaders header = new HttpHeaders();
+		header.add("desc", "getting All Courses by search term");
+		LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
+		return ResponseEntity.status(HttpStatus.OK).headers(header).body(searchEmpsList);
 	}
 }

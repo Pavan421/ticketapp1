@@ -50,7 +50,7 @@ public class Job {
 	private String experience;
 	private String contractType;
 	private String contractDuration;
-	private String salary;
+	private Double salary;
 	// @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="Europe/Paris")
 	@CreationTimestamp
 	@Temporal(TemporalType.DATE)

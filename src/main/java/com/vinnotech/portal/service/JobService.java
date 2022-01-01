@@ -2,7 +2,6 @@ package com.vinnotech.portal.service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.vinnotech.portal.exception.HRPortalException;
-import com.vinnotech.portal.exception.ValidateException;
 import com.vinnotech.portal.model.Job;
 import com.vinnotech.portal.repository.JobRepository;
 
@@ -23,6 +21,7 @@ public class JobService {
 
 	private static final String CLASSNAME = " JobService";
 	private static final Logger LOGGER = LoggerFactory.getLogger(JobService.class);
+
 	@Autowired
 	private JobRepository jobRepository;
 
@@ -42,7 +41,6 @@ public class JobService {
 		} catch (Exception e) {
 			LOGGER.error(CLASSNAME + "got error while creating job " + methodName + e.getMessage());
 			throw new HRPortalException(HttpStatus.BAD_REQUEST.value(), e.getMessage(), e.getCause().getMessage());
-
 		}
 	}
 
@@ -55,17 +53,14 @@ public class JobService {
 	public Job getJobNotification(Long id) {
 		String methodName = "getJobNotification";
 		LOGGER.info(CLASSNAME + ": Entering into the " + methodName);
-		Optional<Job> job = jobRepository.findById(id);
 		try {
-			if (job.isPresent()) {
-				LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
-				return job.get();
-			}
+			Job job = jobRepository.findById(id).get();
+			LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
+			return job;
 		} catch (Exception e) {
 			LOGGER.error(CLASSNAME + "got error while getting job " + methodName + e.getMessage());
-			throw new HRPortalException(HttpStatus.NOT_FOUND.value(), e.getMessage(), e.getCause().getMessage());
+			throw new HRPortalException(HttpStatus.NOT_FOUND.value(), "Record not found with id " + id + ":", "");
 		}
-		throw new ValidateException("Record not found with id : " + id);
 	}
 
 	/**
@@ -183,4 +178,29 @@ public class JobService {
 		}
 	}
 
+	/**
+	 * getting all jobs by search param
+	 * 
+	 * @param publish
+	 * @param searchParam
+	 * @param offset
+	 * @param pageSize
+	 * @return
+	 */
+	public Page<Job> searchJobsByParam(boolean publish, String searchParam, int offset, int pageSize) {
+		String methodName = "getAllJobswithSortAndPagiASC";
+		LOGGER.info(CLASSNAME + ": Entering into the " + methodName);
+		try {
+			SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
+			String currentDate = sm.format(new Date());
+			Page<Job> Jobs = jobRepository.searchJobsByPublishDate(publish, currentDate, searchParam,
+					PageRequest.of(offset, pageSize));
+			LOGGER.info(CLASSNAME + ": Existing into the " + methodName);
+			return Jobs;
+		} catch (Exception e) {
+			LOGGER.error(CLASSNAME + "got error while getting All Job with publish and asending" + methodName
+					+ e.getMessage());
+			throw new HRPortalException(HttpStatus.NOT_FOUND.value(), e.getMessage(), e.getCause().getMessage());
+		}
+	}
 }

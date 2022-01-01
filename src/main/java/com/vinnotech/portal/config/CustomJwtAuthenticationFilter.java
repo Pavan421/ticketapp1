@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.vinnotech.portal.service.HRPortalConstants;
+import com.vinnotech.portal.model.HRPortalConstants;
 
 import io.jsonwebtoken.ExpiredJwtException;
 
@@ -30,8 +30,8 @@ public class CustomJwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		try {
-			String jwtToken = extractJwtFromRequest(request);
+		try {			
+			String jwtToken = jwtUtil.extractJwtFromRequest(request);
 			if (StringUtils.hasText(jwtToken) && jwtUtil.validateToken(jwtToken)) {
 				UserDetails userDetails = new User(jwtUtil.getUsernameFromToken(jwtToken), "",
 						jwtUtil.getRolesFromToken(jwtToken));
@@ -61,15 +61,6 @@ public class CustomJwtAuthenticationFilter extends OncePerRequestFilter {
 				null, null, null);
 		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 		request.setAttribute("claims", ex.getClaims());
-	}
-
-	private String extractJwtFromRequest(HttpServletRequest request) {
-		String bearerToken = request.getHeader("Authorization");
-
-		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-			return bearerToken.substring(7, bearerToken.length());
-		}
-		return null;
 	}
 
 }

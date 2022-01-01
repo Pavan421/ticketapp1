@@ -72,6 +72,7 @@ public class Employee {
 	private String resumePath;
 	private String photoPath;
 	private boolean isEmployeeDeleted;
+	private String changedBy;
 
 	@OneToOne(fetch = FetchType.EAGER, optional = true, cascade = CascadeType.ALL)
 	private BankDetails bankDetails;

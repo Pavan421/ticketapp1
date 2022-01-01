@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vinnotech.portal.model.HRPortalConstants;
 import com.vinnotech.portal.model.Job;
 import com.vinnotech.portal.service.JobService;
 
@@ -31,29 +33,13 @@ public class JobController {
 	private JobService jobService;
 
 	/**
-	 * This method is used to get Job details based on jobId
-	 * 
-	 * @param id
-	 * @return
-	 */
-	@GetMapping("/{id}")
-	public ResponseEntity<Job> getJob(@PathVariable Long id) {
-		String methodName = "getJob";
-		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
-		Job job = jobService.getJobNotification(id);
-		HttpHeaders header = new HttpHeaders();
-		header.add("desc", "got job by jobId");
-		LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
-		return ResponseEntity.status(HttpStatus.OK).headers(header).body(job);
-	}
-
-	/**
 	 * This method is used to add new Job By HR from DashBoard
 	 * 
 	 * @param job
 	 * @return
 	 */
-	@PutMapping
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_RECRUITER_ONLY)
+	@PutMapping("/create")
 	public ResponseEntity<String> createJob(@RequestBody Job job) {
 		String methodName = "createJob";
 		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
@@ -65,20 +51,21 @@ public class JobController {
 	}
 
 	/**
-	 * This method is used to delete the posted job By admin from DashBoard
+	 * This method is used to get Job details based on jobId
 	 * 
 	 * @param id
 	 * @return
 	 */
-	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteJob(@PathVariable Long id) {
-		String methodName = "deleteJob";
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_RECRUITER_ONLY)
+	@GetMapping("/{jobId}")
+	public ResponseEntity<Job> getJob(@PathVariable("jobId") Long jobId) {
+		String methodName = "getJob";
 		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
-		String deletedJob = jobService.deleteJobNotification(id);
+		Job job = jobService.getJobNotification(jobId);
 		HttpHeaders header = new HttpHeaders();
-		header.add("desc", "Deleting  job");
+		header.add("desc", "got job by jobId");
 		LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
-		return ResponseEntity.status(HttpStatus.OK).headers(header).body(deletedJob);
+		return ResponseEntity.status(HttpStatus.OK).headers(header).body(job);
 	}
 
 	/**
@@ -90,9 +77,10 @@ public class JobController {
 	 * @param field
 	 * @return
 	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_RECRUITER_ONLY)
 	@GetMapping("/spdesc/{offset}/{pageSize}/{field}")
-	public ResponseEntity<Page<Job>> getAllJobDesc(@PathVariable int offset, @PathVariable int pageSize,
-			@PathVariable String field) {
+	public ResponseEntity<Page<Job>> getAllJobDesc(@PathVariable("offset") int offset,
+			@PathVariable("pageSize") int pageSize, @PathVariable("field") String field) {
 		String methodName = "getAllJobDesc";
 		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
 		HttpHeaders header = new HttpHeaders();
@@ -111,9 +99,10 @@ public class JobController {
 	 * @param field
 	 * @return
 	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_RECRUITER_ONLY)
 	@GetMapping("/spase/{offset}/{pageSize}/{field}")
-	public ResponseEntity<Page<Job>> getAllJobAse(@PathVariable int offset, @PathVariable int pageSize,
-			@PathVariable String field) {
+	public ResponseEntity<Page<Job>> getAllJobAse(@PathVariable("offset") int offset,
+			@PathVariable("pageSize") int pageSize, @PathVariable("field") String field) {
 		String methodName = "getAllJobAse";
 		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
 		Page<Job> pJobasc = jobService.getAllJobAse(offset, pageSize, field);
@@ -133,9 +122,11 @@ public class JobController {
 	 * @param field
 	 * @return
 	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_RECRUITER_ONLY)
 	@GetMapping("/sppublishdesc/{publish}/{offset}/{pageSize}/{field}")
-	private ResponseEntity<Page<Job>> getAllJobswithSortAndPagiDesc(@PathVariable boolean publish,
-			@PathVariable int offset, @PathVariable int pageSize, @PathVariable String field) {
+	public ResponseEntity<Page<Job>> getAllJobswithSortAndPagiDesc(@PathVariable("publish") boolean publish,
+			@PathVariable("offset") int offset, @PathVariable("pageSize") int pageSize,
+			@PathVariable("field") String field) {
 		String methodName = "getAllJobswithSortAndPagiDesc";
 		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
 		Page<Job> pJobdescwithPubDesc = jobService.getAllJobswithSortAndPagiDesc(publish, offset, pageSize, field);
@@ -155,9 +146,11 @@ public class JobController {
 	 * @param field
 	 * @return
 	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_RECRUITER_ONLY)
 	@GetMapping("/sppublishasc/{publish}/{offset}/{pageSize}/{field}")
-	private ResponseEntity<Page<Job>> getAllJobswithSortAndPagiASC(@PathVariable boolean publish,
-			@PathVariable int offset, @PathVariable int pageSize, @PathVariable String field) {
+	public ResponseEntity<Page<Job>> getAllJobswithSortAndPagiASC(@PathVariable("publish") boolean publish,
+			@PathVariable("offset") int offset, @PathVariable("pageSize") int pageSize,
+			@PathVariable("field") String field) {
 		String methodName = "getAllJobswithSortAndPagiASC";
 		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
 		Page<Job> pJobdescwithPubasc = jobService.getAllJobswithSortAndPagiASC(publish, offset, pageSize, field);
@@ -167,4 +160,43 @@ public class JobController {
 		return ResponseEntity.status(HttpStatus.OK).headers(header).body(pJobdescwithPubasc);
 	}
 
+	/**
+	 * This method is used to delete the posted job By admin from DashBoard
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@PreAuthorize(HRPortalConstants.ROLE_ADMIN_HR_RECRUITER_ONLY)
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<String> deleteJob(@PathVariable("id") Long id) {
+		String methodName = "deleteJob";
+		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
+		String deletedJob = jobService.deleteJobNotification(id);
+		HttpHeaders header = new HttpHeaders();
+		header.add("desc", "Deleting  job");
+		LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
+		return ResponseEntity.status(HttpStatus.OK).headers(header).body(deletedJob);
+	}
+
+	/**
+	 * getting all jobs by search descending order and pagination
+	 * 
+	 * @param publish
+	 * @param searchparam
+	 * @param offset
+	 * @param pageSize
+	 * @return
+	 */
+	@GetMapping("/searchJobsByParam/{publish}/{searchparam}/{offset}/{pageSize}")
+	public ResponseEntity<Page<Job>> searchJobsByQueryParam(@PathVariable("publish") boolean publish,
+			@PathVariable("searchparam") String searchparam, @PathVariable("offset") int offset,
+			@PathVariable("pageSize") int pageSize) {
+		String methodName = "searchJobsByQueryParam";
+		LOGGER.info(CLASSNAME + ": Entering into the " + methodName + " method");
+		Page<Job> searchJobsPage = jobService.searchJobsByParam(publish, searchparam, offset, pageSize);
+		HttpHeaders header = new HttpHeaders();
+		header.add("desc", "getting all jobs with by searching");
+		LOGGER.info(CLASSNAME + ": Existing from  " + methodName + " method");
+		return ResponseEntity.status(HttpStatus.OK).headers(header).body(searchJobsPage);
+	}
 }

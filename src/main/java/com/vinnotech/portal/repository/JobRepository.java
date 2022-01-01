@@ -16,6 +16,8 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 	 * List<Job> findBySkill(boolean publish);
 	 */
 	@Query(value = "select * from job where publish =?1 and end_date >=?2", nativeQuery = true)
-	Page<Job> findByJobsWithPublishDate(boolean publish,String date,Pageable pageable);
+	Page<Job> findByJobsWithPublishDate(boolean publish, String date, Pageable pageable);
 
+	@Query(value = "select * from job where publish = ?1 and end_date >= ?2 and (job_id like %?3% or primary_skill like %?3% or location  like %?3%) order by posted_on desc", nativeQuery = true)
+	Page<Job> searchJobsByPublishDate(boolean publish, String date, String param, Pageable pageable);
 }

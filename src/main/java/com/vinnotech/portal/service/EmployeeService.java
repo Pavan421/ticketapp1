@@ -29,4 +29,6 @@ public interface EmployeeService {
 
 	public Page<Employee> getAllEmployeeswithSortAndPagiDelASC(boolean isEmpDeleted, int offset, int pageSize,
 			String field);
+
+	public Page<Employee> searchEmpsByParam(String searchParam, int offset, int pageSize);
 }

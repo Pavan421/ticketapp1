@@ -7,14 +7,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import com.vinnotech.portal.service.HRPortalConstants;
+import com.vinnotech.portal.exception.HRPortalException;
+import com.vinnotech.portal.model.HRPortalConstants;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -77,6 +82,14 @@ public class JwtUtil {
 				.signWith(SignatureAlgorithm.HS512, secret).compact();
 	}
 
+	public String extractJwtFromRequest(HttpServletRequest request) {
+		String bearerToken = request.getHeader("Authorization");
+		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+			return bearerToken.substring(7, bearerToken.length());
+		}
+		return null;
+	}
+
 	public boolean validateToken(String authToken) {
 		try {
 			Jws<Claims> claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(authToken);
@@ -115,5 +128,17 @@ public class JwtUtil {
 			roles = Arrays.asList(new SimpleGrantedAuthority(HRPortalConstants.ROLE_EMPLOYEE));
 		}
 		return roles;
+	}
+
+	public String getUserNameFromToken(HttpServletRequest request) {
+		String uname = null;
+			String jwtToken = extractJwtFromRequest(request);
+			if (StringUtils.hasText(jwtToken) && validateToken(jwtToken)) {
+				UserDetails userDetails = new User(getUsernameFromToken(jwtToken), "",
+						getRolesFromToken(jwtToken));
+				uname=userDetails.getUsername();
+			}
+		return uname;
+		
 	}
 }

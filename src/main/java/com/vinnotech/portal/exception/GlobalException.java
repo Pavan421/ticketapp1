@@ -27,6 +27,5 @@ public class GlobalException {
 		ErrorMessage errormsg = new ErrorMessage(ex.getStatusCode(), new Date(), ex.getMessage().split(":")[0],
 				request.getDescription(false));
 		return ResponseEntity.status(ex.getStatusCode()).headers(header).body(errormsg);
-
 	}
 }
